@@ -1,9 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from google import genai
+import os
 
-
-API_KEY = "AIzaSyAWagSvdi80AFqORGonS2jR_j6E5Loo26Q"
+API_KEY = os.environ.get("AIzaSyAWagSvdi80AFqORGonS2jR_j6E5Loo26Q")
 client = genai.Client(api_key=API_KEY)
 
 app = FastAPI()
@@ -15,13 +15,10 @@ def home():
 class Question(BaseModel):
     question: str
 
-
 def get_supported_model():
     models = client.models.list()
     for m in models:
-        
         try:
-            
             if m.name.startswith("models/"):
                 return m.name
         except:
