@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from google import genai
 
-# API Key 
+
 API_KEY = "AIzaSyAWagSvdi80AFqORGonS2jR_j6E5Loo26Q"
 client = genai.Client(api_key=API_KEY)
 
@@ -19,10 +19,9 @@ class Question(BaseModel):
 def get_supported_model():
     models = client.models.list()
     for m in models:
-        # check if model supports generateContent
+        
         try:
-            # New GenAI API may not have 'supported_methods'; use a fallback approach
-            # models that start with 'models/' usually support generateContent
+            
             if m.name.startswith("models/"):
                 return m.name
         except:
