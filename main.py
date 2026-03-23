@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from google import genai
+import google.generativeai as genai
 
 # API Key from environment variable
 API_KEY = os.getenv("GOOGLE_API_KEY")
