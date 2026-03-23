@@ -1,9 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import google.generativeai as genai
+from google import genai
+import os
 
 
-API_KEY = "AIzaSyAM7RjSyQqB7mFI4_R3s2bO4Mb2H4XJRO0"
+API_KEY = os.getenv("AIzaSyAL9pXxPYLEPJ11OugxLUYLt_yCvaccbvc")
+
+if not API_KEY:
+    raise ValueError("GOOGLE_API_KEY not set")
 
 client = genai.Client(api_key=API_KEY)
 
@@ -16,28 +20,13 @@ def home():
 class Question(BaseModel):
     question: str
 
-def get_supported_model():
-    models = client.models.list()
-    for m in models:
-        try:
-            if m.name.startswith("models/"):
-                return m.name
-        except:
-            continue
-    return None
-
 @app.post("/ask")
 def ask_question(q: Question):
     try:
-        model_name = get_supported_model()
-        if not model_name:
-            raise HTTPException(status_code=500, detail="No supported model found for generateContent")
-
         response = client.models.generate_content(
-            model=model_name,
+            model="gemini-1.5-flash",
             contents=q.question
         )
-        return {"answer": response.text}
-
+        return {"answer": getattr(response, "text", str(response))}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

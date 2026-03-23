@@ -6,6 +6,5 @@ services:
     buildCommand: "pip install -r requirements.txt"
     startCommand: "uvicorn main:app --host 0.0.0.0 --port 10000"
     envVars:
-      - key: AIzaSyAM7RjSyQqB7mFI4_R3s2bO4Mb2H4XJRO0
-        sync: false
-      
+      - key: GOOGLE_API_KEY
+        value: AIzaSyAL9pXxPYLEPJ11OugxLUYLt_yCvaccbvc
