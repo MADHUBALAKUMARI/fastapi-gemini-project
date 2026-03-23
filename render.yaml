@@ -8,4 +8,4 @@ services:
     startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: GOOGLE_API_KEY
-        value: "AIzaSyDRbEjaht9SpAaxP2g2D1rGdr621UoEvWY"
+        value: "AIzaSyCXj7mR7E1YYH05ZGJ8YP0tgqHRMIpQdOg"  

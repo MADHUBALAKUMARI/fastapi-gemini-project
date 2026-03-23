@@ -6,7 +6,7 @@ from google import genai
 # API Key from environment variable
 API_KEY = os.getenv("GOOGLE_API_KEY")
 if not API_KEY:
-    raise Exception("API Key not found. Set GOOGLE_API_KEY as environment variable.")
+    raise Exception("API Key not found. Set GOOGLE_API_KEY as environment variable in Render dashboard.")
 
 # Initialize Gemini AI client
 client = genai.Client(api_key=API_KEY)
@@ -21,19 +21,18 @@ class Question(BaseModel):
     question: str
 
 def get_supported_model():
-    """
-    Return the first model that supports generateContent.
-    Fallback: if supported_methods missing, use models with 'models/' prefix.
-    """
-    models = client.models.list()
-    for m in models:
-        try:
+    """Return a supported model for content generation."""
+    try:
+        models = client.models.list()
+        for m in models:
             if "generateContent" in getattr(m, "supported_methods", []):
                 return m.name
-            elif getattr(m, "name", "").startswith("models/"):
+        # fallback: pick first model with 'models/' prefix
+        for m in models:
+            if getattr(m, "name", "").startswith("models/"):
                 return m.name
-        except:
-            continue
+    except Exception as e:
+        print("Error fetching models:", e)
     return None
 
 @app.post("/ask")
@@ -51,14 +50,10 @@ def ask_question(q: Question):
 
         # Extract answer safely
         answer = getattr(response, "output_text", None)
-        
-        # Fallback for alternate response attribute (latest SDK)
         if not answer:
             try:
-                # Some SDK versions store it in 'content' of first output
                 answer = response.outputs[0].content
-            except:
-                # Last fallback: return string representation
+            except Exception:
                 answer = str(response)
 
         return {"answer": answer}
