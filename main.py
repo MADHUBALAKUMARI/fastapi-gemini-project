@@ -1,12 +1,14 @@
 import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import google.generativeai as genai
+from google import genai  # <- updated package
 
 # API Key from environment variable
 API_KEY = os.getenv("GOOGLE_API_KEY")
 if not API_KEY:
-    raise Exception("API Key not found. Set GOOGLE_API_KEY as environment variable in Render dashboard.")
+    raise Exception(
+        "API Key not found. Set GOOGLE_API_KEY as environment variable in Render dashboard."
+    )
 
 # Initialize Gemini AI client
 client = genai.Client(api_key=API_KEY)
@@ -23,9 +25,9 @@ class Question(BaseModel):
 def get_supported_model():
     """Return a supported model for content generation."""
     try:
-        models = client.models.list()
+        models = client.list_models()
         for m in models:
-            if "generateContent" in getattr(m, "supported_methods", []):
+            if "generateText" in getattr(m, "supported_methods", []):
                 return m.name
         # fallback: pick first model with 'models/' prefix
         for m in models:
@@ -43,9 +45,9 @@ def ask_question(q: Question):
 
     try:
         # Generate content from Gemini GenAI
-        response = client.models.generate_content(
+        response = client.generate_text(
             model=model_name,
-            contents=[q.question]
+            prompt=q.question
         )
 
         # Extract answer safely
