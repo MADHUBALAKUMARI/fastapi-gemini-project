@@ -1,33 +1,31 @@
-import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
-from google import genai  # New official package
+import os
+from dotenv import load_dotenv
+from google import genai
 
-# API key from Render environment variable
-API_KEY = os.getenv("GOOGLE_API_KEY")
-if not API_KEY:
-    raise Exception("API Key not found. Set GOOGLE_API_KEY in Render environment variables.")
+# Load env
+load_dotenv()
 
-# Initialize GenAI client
-client = genai.Client(api_key=API_KEY)
+# Create client
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-app = FastAPI(title="FastAPI + Gemini GenAI")
+app = FastAPI()
 
 class Question(BaseModel):
     question: str
 
 @app.get("/")
 def home():
-    return {"message": "API is working"}
+    return {"message": "FastAPI + Gemini latest running 🚀"}
 
 @app.post("/ask")
-def ask_question(q: Question):
+def ask_question(data: Question):
     try:
-        # Use official model
-        response = client.generate_text(
-            model="models/text-bison-001",
-            prompt=q.question
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",   # ✅ FINAL FIX
+            contents=data.question
         )
-        return {"answer": response.output_text}
+        return {"answer": response.text}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"error": str(e)}
