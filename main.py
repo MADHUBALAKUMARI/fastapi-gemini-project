@@ -4,14 +4,16 @@ import requests
 import os
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 app = FastAPI()
 
+
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
 class Question(BaseModel):
     question: str
-
-API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 @app.get("/")
 def home():
@@ -20,15 +22,17 @@ def home():
 @app.post("/ask")
 def ask_question(q: Question):
     try:
+        print("API KEY:", OPENROUTER_API_KEY)  
+
         url = "https://openrouter.ai/api/v1/chat/completions"
 
         headers = {
-            "Authorization": f"Bearer {API_KEY}",
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",  
             "Content-Type": "application/json"
         }
 
         data = {
-            "model": "openai/gpt-3.5-turbo",  # free model
+            "model": "openai/gpt-3.5-turbo",
             "messages": [
                 {"role": "user", "content": q.question}
             ]
@@ -37,9 +41,10 @@ def ask_question(q: Question):
         response = requests.post(url, headers=headers, json=data)
         result = response.json()
 
-        return {
-            "answer": result["choices"][0]["message"]["content"]
-        }
+        if "choices" in result:
+            return {"answer": result["choices"][0]["message"]["content"]}
+        else:
+            return {"error": result}
 
     except Exception as e:
         return {"error": str(e)}
