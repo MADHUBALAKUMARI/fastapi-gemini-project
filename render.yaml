@@ -1,9 +1,9 @@
 services:
   - type: web
     name: fastapi-gemini-app
-    runtime: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "uvicorn main:app --host 0.0.0.0 --port 10000"
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
     envVars:
-      - key: GEMINI_API_KEY
-        value: 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
+      - key: OPENROUTER_API_KEY
+        sync: false
