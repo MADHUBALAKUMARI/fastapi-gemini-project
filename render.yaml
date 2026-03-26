@@ -6,4 +6,4 @@ services:
     startCommand: "uvicorn main:app --host 0.0.0.0 --port 10000"
     envVars:
       - key: GEMINI_API_KEY
-        value: AIzaSyBz54qKfmWvCoMhehOhZocEFLk2RKXUOgg
+        value: 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
