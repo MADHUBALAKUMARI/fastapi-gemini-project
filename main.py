@@ -4,41 +4,54 @@ import requests
 import os
 from dotenv import load_dotenv
 
-# Load .env
+# Load .env variables
 load_dotenv()
 
-app = FastAPI()
+# FastAPI app with title, description, version (friend style)
+app = FastAPI(
+    title="Chat API",
+    description="AI Chatbot API using OpenRouter - Friend Style Swagger UI",
+    version="1.0.0",
+    contact={
+        "name": "Gauri's API",
+        "url": "https://yourwebsite.com",
+        "email": "gauri@example.com"
+    }
+)
 
-# API key
+# API Key
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-class Question(BaseModel):
+# Request Model
+class ChatRequest(BaseModel):
     question: str
 
-@app.get("/")
-def home():
-    return {"message": "API is working "}
+# Root Endpoint
+@app.get("/", tags=["Root"])
+def root():
+    return {"message": "API is working 🚀"}
 
-@app.post("/ask")
-def ask_question(q: Question):
+# Chat Endpoint
+@app.post("/chat", tags=["Chat"])
+def chat(request: ChatRequest):
+    if not OPENROUTER_API_KEY:
+        return {"error": "API key missing ❌"}
+
+    url = "https://openrouter.ai/api/v1/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "model": "openai/gpt-3.5-turbo",
+        "messages": [
+            {"role": "user", "content": request.question}
+        ]
+    }
+
     try:
-        if not OPENROUTER_API_KEY:
-            return {"error": "API key missing "}
-
-        url = "https://openrouter.ai/api/v1/chat/completions"
-
-        headers = {
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json"
-        }
-
-        data = {
-            "model": "openai/gpt-3.5-turbo",
-            "messages": [
-                {"role": "user", "content": q.question}
-            ]
-        }
-
         response = requests.post(url, headers=headers, json=data)
         result = response.json()
 
